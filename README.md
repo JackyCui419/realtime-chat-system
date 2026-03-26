@@ -45,3 +45,35 @@ The system covers:
 ### 4. Profile & Media
 - User avatar upload
 - Media file
+
+## Database Schema
+
+The database schema was designed to support users, chat rooms, and message storage.
+
+![Database Schema](./docs/database-schema.png)
+
+---
+
+## Use Cases / User Flow
+
+### Public Chat and Room Interaction
+![Public Chat Flow](./docs/use-case-public-chat.png)
+
+### Private Messaging and Profile Update
+![Private Chat and Profile Flow](./docs/use-case-private-profile.png)
+
+---
+
+## Screenshots
+
+### Login Page
+![Login Page](./screenshots/login-page.png)
+
+### Registration Page
+![Registration Page](./screenshots/register-page.png)
+
+### Main Chat Interface
+![Main Chat Interface](./screenshots/chat-main-page.png)
+
+### Profile Page
+![Profile Page](./screenshots/profile-page.png)
