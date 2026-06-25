@@ -21,11 +21,11 @@ export const useChatStore = defineStore('chat', {
       console.log('Filtering messages - currentRoom:', state.currentRoom, 'total messages:', state.messages.length, 'filtered:', filtered.length);
       return filtered;
     },
-    
+
     privateMessages: (state) => {
       return (targetUserId) => {
         return state.messages.filter(
-          msg => msg.isPrivate && 
+          msg => msg.isPrivate &&
           ((msg.userId === state.userId && msg.targetUserId === targetUserId) ||
            (msg.userId === targetUserId && msg.targetUserId === state.userId))
         );
@@ -37,9 +37,9 @@ export const useChatStore = defineStore('chat', {
     connect(userId, username) {
       this.userId = userId;
       this.username = username;
-      
+
       const socket = socketService.connect(userId, username);
-      
+
       if (!socket) {
         console.error('Failed to create socket connection');
         return;
@@ -47,7 +47,7 @@ export const useChatStore = defineStore('chat', {
 
       // Set up listeners immediately (they'll work once socket connects)
       this.setupSocketListeners();
-      
+
       // Handle connection status
       const handleConnect = () => {
         console.log('Socket connected, setting isConnected to true');
@@ -68,7 +68,7 @@ export const useChatStore = defineStore('chat', {
       socket.on('connect', handleConnect);
       socket.on('disconnect', handleDisconnect);
       socket.on('connect_error', handleError);
-      
+
       // If already connected, set status immediately
       if (socket.connected) {
         console.log('Socket already connected');
@@ -82,6 +82,7 @@ export const useChatStore = defineStore('chat', {
       this.messages = [];
       this.rooms = [];
       this.onlineUsers = [];
+      this.roomMembers = [];
     },
 
     setupSocketListeners() {
@@ -144,10 +145,6 @@ export const useChatStore = defineStore('chat', {
 
     joinRoom(roomId) {
       this.currentRoom = roomId;
-      // Clear messages for the new room (optional - you might want to keep history)
-      this.messages = this.messages.filter(
-        msg => msg.roomId !== roomId && msg.isPrivate
-      );
       socketService.joinRoom(roomId);
     },
 

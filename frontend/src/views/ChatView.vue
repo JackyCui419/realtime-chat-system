@@ -81,7 +81,10 @@
             <div class="sidebar-title">Chat Rooms</div>
             <div class="sidebar-user">👋 {{ chatStore.username }}</div>
           </div>
-          <RoomList @start-private-chat="handleStartPrivateChat" />
+          <RoomList
+            @start-private-chat="handleStartPrivateChat"
+            @select-room="activePrivateChat = null"
+          />
         </aside>
 
         <!-- 右侧：聊天区域 -->
@@ -112,7 +115,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useChatStore } from '../stores/chat';
 import RoomList from '../components/chat/RoomList.vue';
@@ -193,10 +196,6 @@ const logout = () => {
   confirmPassword.value = '';
   mode.value = 'login';
 };
-
-onUnmounted(() => {
-  chatStore.disconnect();
-});
 </script>
 
 <style scoped>

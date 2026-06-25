@@ -14,5 +14,5 @@ export async function uploadChatMedia(file, type = 'image') {
   if (!data.success) {
     throw new Error(data.message || 'Upload failed');
   }
-  return data.url; // 例如 /uploads/xxxx.png
+  return `${base}${data.url}`; // 例如 http://localhost:3000/uploads/xxxx.png
 }

@@ -10,6 +10,8 @@ yarn-error.log*
 # Environment files
 .env
 .env.*
+!.env.example
+!**/.env.example
 
 # Build output
 dist/
@@ -28,3 +30,4 @@ logs/
 
 # OS generated files
 Thumbs.db
+uploads/

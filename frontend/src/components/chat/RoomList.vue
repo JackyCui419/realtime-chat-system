@@ -53,12 +53,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useChatStore } from '../../stores/chat';
 
 const chatStore = useChatStore();
 const showCreateRoom = ref(false);
 const newRoomName = ref('');
+let refreshTimer = null;
 
 const rooms = computed(() => chatStore.rooms);
 const currentRoom = computed(() => chatStore.currentRoom);
@@ -66,6 +67,7 @@ const onlineUsers = computed(() => chatStore.onlineUsers);
 
 const selectRoom = (roomId) => {
   chatStore.joinRoom(roomId);
+  emit('select-room', roomId);
 };
 
 const createRoom = () => {
@@ -88,14 +90,21 @@ const startPrivateChat = (targetUserId) => {
   emit('start-private-chat', targetUserId);
 };
 
-const emit = defineEmits(['start-private-chat']);
+const emit = defineEmits(['start-private-chat', 'select-room']);
 
 onMounted(() => {
   chatStore.getOnlineUsers();
   // Refresh online users periodically
-  setInterval(() => {
+  refreshTimer = setInterval(() => {
     chatStore.getOnlineUsers();
   }, 5000);
+});
+
+onBeforeUnmount(() => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
 });
 </script>
 

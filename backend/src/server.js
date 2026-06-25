@@ -33,11 +33,12 @@ const pool = mysql.createPool({
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || ['http://localhost:5173', 'http://localhost:5174'],
+    origin: '*',
     methods: ['GET', 'POST'],
-    credentials: true
   }
 });
+
+app.use(cors({ origin: '*' }));
 
 app.use(cors());
 app.use(express.json());
@@ -308,6 +309,42 @@ if (!rooms.has(DEFAULT_ROOM)) {
   });
 }
 
+function getAvailableRooms() {
+  return Array.from(rooms.entries()).map(([id, room]) => ({
+    id,
+    name: room.name,
+    type: room.type,
+    memberCount: room.members.size
+  }));
+}
+
+function emitAvailableRooms() {
+  io.emit('available-rooms', getAvailableRooms());
+}
+
+function getOnlineUsersFor(socketId) {
+  const currentUser = users.get(socketId);
+  const onlineUsersById = new Map();
+
+  for (const [sid, user] of users.entries()) {
+    if (currentUser && user.userId === currentUser.userId) continue;
+    if (!onlineUsersById.has(user.userId)) {
+      onlineUsersById.set(user.userId, {
+        userId: user.userId,
+        username: user.username
+      });
+    }
+  }
+
+  return Array.from(onlineUsersById.values());
+}
+
+function emitOnlineUsers() {
+  for (const socketId of users.keys()) {
+    io.to(socketId).emit('online-users', getOnlineUsersFor(socketId));
+  }
+}
+
 // 确保默认房间写进数据库
 (async () => {
   try {
@@ -398,15 +435,12 @@ io.on('connection', (socket) => {
         members: roomMembers
       });
 
-      // 把可用房间列表发给新用户
-      const availableRooms = Array.from(rooms.entries()).map(([id, room]) => ({
-        id,
-        name: room.name,
-        type: room.type,
-        memberCount: room.members.size
-      }));
+      // 把可用房间列表发给新用户，并刷新所有人的在线/房间状态
+      const availableRooms = getAvailableRooms();
       console.log('Sending available rooms:', availableRooms);
       socket.emit('available-rooms', availableRooms);
+      emitAvailableRooms();
+      emitOnlineUsers();
     } catch (err) {
       console.error('Error during user-join auth:', err);
       socket.emit('auth-error', 'Server error during authentication.');
@@ -447,6 +481,7 @@ io.on('connection', (socket) => {
       type: 'public',
       memberCount: rooms.get(roomId)?.members.size || 0
     });
+    emitAvailableRooms();
   });
 
   // Join a room
@@ -494,6 +529,7 @@ io.on('connection', (socket) => {
       room: roomId,
       members: roomMembers
     });
+    emitAvailableRooms();
   });
 
   // Send message (room + private)，支持 text / sticker / image / audio
@@ -605,15 +641,7 @@ io.on('connection', (socket) => {
 
   // Get online users (for private messaging)
   socket.on('get-online-users', () => {
-    const currentUser = users.get(socket.id);
-    const onlineUsers = Array.from(users.values())
-      .filter((u) => !currentUser || u.userId !== currentUser.userId)
-      .map((u) => ({
-        userId: u.userId,
-        username: u.username
-      }));
-
-    socket.emit('online-users', onlineUsers);
+    socket.emit('online-users', getOnlineUsersFor(socket.id));
   });
 
   // Disconnect handling
@@ -631,6 +659,8 @@ io.on('connection', (socket) => {
       }
 
       users.delete(socket.id);
+      emitAvailableRooms();
+      emitOnlineUsers();
     }
     console.log('User disconnected:', socket.id);
   });
@@ -641,7 +671,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Socket.io server ready');
 });

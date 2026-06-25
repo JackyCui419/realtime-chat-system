@@ -104,6 +104,7 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted } from 'vue';
 import { useChatStore } from '../../stores/chat';
+import { uploadChatMedia } from '../../services/chatMedia';
 
 const chatStore = useChatStore();
 
@@ -124,9 +125,6 @@ const stickers = [
   '/stickers/sticker2.webp',
   '/stickers/sticker3.webp'
 ];
-
-// 后端 API 地址
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 const currentRoomName = computed(() => {
   const room = chatStore.rooms.find((r) => r.id === chatStore.currentRoom);
@@ -176,26 +174,6 @@ const sendSticker = (url) => {
   });
   showStickerPanel.value = false;
 };
-
-// 封装一个上传聊天媒体的函数（图片 / 语音）
-// ⚠️ 这里返回完整 URL，带 http://localhost:3000
-async function uploadChatMedia(file, type = 'image') {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('type', type);
-
-  const res = await fetch(`${API_BASE}/api/upload/chat-media`, {
-    method: 'POST',
-    body: formData
-  });
-
-  const data = await res.json();
-  if (!data.success) {
-    throw new Error(data.message || 'Upload failed');
-  }
-  // 关键：加上 API_BASE，变成 http://localhost:3000/uploads/xxx
-  return `${API_BASE}${data.url}`;
-}
 
 // 选择图片后上传并发送图片消息
 const onImageSelected = async (event) => {

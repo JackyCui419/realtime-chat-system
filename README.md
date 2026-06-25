@@ -1,13 +1,13 @@
 # Real-Time Chat System
 
-A full-stack real-time chat product prototype built with **Vue 3, Node.js, Express, Socket.IO, and MySQL**.  
+A full-stack real-time chat product prototype built with **Vue 3, Node.js, Express, Socket.IO, and MySQL**.
 The project is designed around real-time communication scenarios and supports **public chat, private chat, room management, user profiles, avatar upload, and media message upload**.
 
 ---
 
 ## Project Overview
 
-This project aims to build a complete real-time chat system from both **product design** and **technical implementation** perspectives.  
+This project aims to build a complete real-time chat system from both **product design** and **technical implementation** perspectives.
 Instead of only focusing on front-end pages or back-end APIs, the project was designed as a full communication system with clear user flow, functional modules, and state transitions.
 
 The system covers:
@@ -18,7 +18,7 @@ The system covers:
 - Online user status
 - User profile editing
 - Avatar upload
-- Image / video message upload
+- Image / audio / sticker message upload
 
 ---
 
@@ -34,7 +34,7 @@ The system covers:
 - Public room chat
 - Private one-to-one chat
 - Real-time message synchronization using Socket.IO
-- Text, image, and video message support
+- Text, image, audio, and sticker message support
 
 ### 3. Room Management
 - Default public room
@@ -44,7 +44,41 @@ The system covers:
 
 ### 4. Profile & Media
 - User avatar upload
-- Media file
+- Chat image and audio upload
+- Built-in sticker messages
+
+---
+
+## Local Setup
+
+1. Create the MySQL database and tables:
+   ```bash
+   mysql -u root -p < backend/schema.sql
+   ```
+
+2. Configure backend environment variables:
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
+
+3. Configure frontend environment variables:
+   ```bash
+   cp frontend/.env.example frontend/.env.local
+   ```
+
+4. Start the backend:
+   ```bash
+   cd backend
+   npm install
+   npm run dev
+   ```
+
+5. Start the frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
 ## Database Schema
 
