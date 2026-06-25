@@ -84,40 +84,28 @@ The system covers:
 
 ## Website Deployment
 
-The frontend is configured for GitHub Pages and can be published as:
+The frontend demo is published with GitHub Pages:
 
 ```text
 https://jackycui419.github.io/realtime-chat-system/
 ```
 
-GitHub Actions workflow:
+The site is served from the `gh-pages` branch. To rebuild the static frontend locally:
 
-```text
-.github/workflows/deploy-frontend.yml
+```bash
+cd frontend
+VITE_BASE_PATH=/realtime-chat-system/ npm run build
 ```
-
-To enable the public frontend link:
-
-1. Open the GitHub repository.
-2. Go to `Settings` -> `Pages`.
-3. Set `Build and deployment` source to `GitHub Actions`.
-4. Push to `main`, then wait for the `Deploy frontend to GitHub Pages` action to finish.
 
 ### Backend Requirement
 
 The GitHub Pages link only hosts the Vue frontend. Real-time chat also needs the Node.js backend and MySQL database to be available on the public internet.
 
-Deploy the backend with any Node/Docker hosting platform, then set these GitHub repository variables before rebuilding the frontend:
+Deploy the backend with any Node/Docker hosting platform, then rebuild the frontend with:
 
 ```text
 VITE_API_BASE_URL=https://your-backend-domain.com
 VITE_SOCKET_URL=https://your-backend-domain.com
-```
-
-Repository variables are configured in:
-
-```text
-Settings -> Secrets and variables -> Actions -> Variables
 ```
 
 The backend expects these environment variables:
