@@ -9,6 +9,7 @@ export const useChatStore = defineStore('chat', {
     onlineUsers: [],
     roomMembers: [],
     isConnected: false,
+    isDemoMode: false,
     userId: null,
     username: null
   }),
@@ -41,9 +42,23 @@ export const useChatStore = defineStore('chat', {
       const socket = socketService.connect(userId, username);
 
       if (!socket) {
-        console.error('Failed to create socket connection');
+        console.warn('Using local demo chat mode because no socket backend is configured.');
+        this.isConnected = true;
+        this.isDemoMode = true;
+        this.rooms = [
+          {
+            id: 'general',
+            name: 'General',
+            type: 'public',
+            memberCount: 1
+          }
+        ];
+        this.roomMembers = [{ userId, username }];
+        this.onlineUsers = [];
         return;
       }
+
+      this.isDemoMode = false;
 
       // Set up listeners immediately (they'll work once socket connects)
       this.setupSocketListeners();
@@ -79,6 +94,7 @@ export const useChatStore = defineStore('chat', {
     disconnect() {
       socketService.disconnect();
       this.isConnected = false;
+      this.isDemoMode = false;
       this.messages = [];
       this.rooms = [];
       this.onlineUsers = [];
@@ -140,11 +156,28 @@ export const useChatStore = defineStore('chat', {
     },
 
     createRoom(roomId, roomName) {
+      if (this.isDemoMode) {
+        if (!this.rooms.find((room) => room.id === roomId)) {
+          this.rooms.push({
+            id: roomId,
+            name: roomName || roomId,
+            type: 'public',
+            memberCount: 1
+          });
+        }
+        return;
+      }
+
       socketService.createRoom(roomId, roomName);
     },
 
     joinRoom(roomId) {
       this.currentRoom = roomId;
+      if (this.isDemoMode) {
+        this.roomMembers = [{ userId: this.userId, username: this.username }];
+        return;
+      }
+
       socketService.joinRoom(roomId);
     },
 
@@ -187,12 +220,32 @@ export const useChatStore = defineStore('chat', {
       console.log('Current room:', this.currentRoom);
       console.log('Socket connected:', socketService.isConnected);
 
+      if (this.isDemoMode) {
+        this.messages.push({
+          id: Date.now().toString(),
+          userId: this.userId,
+          username: this.username,
+          message: messageData.message,
+          roomId: messageData.roomId || this.currentRoom,
+          timestamp: new Date().toISOString(),
+          isPrivate: messageData.isPrivate,
+          targetUserId: messageData.targetUserId,
+          messageType: messageData.messageType,
+          mediaUrl: messageData.mediaUrl
+        });
+        return;
+      }
+
       socketService.sendMessage(messageData);
     },
 
     getOnlineUsers() {
+      if (this.isDemoMode) {
+        this.onlineUsers = [];
+        return;
+      }
+
       socketService.getOnlineUsers();
     }
   }
 });
-

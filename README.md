@@ -90,6 +90,8 @@ The frontend demo is published with GitHub Pages:
 https://jackycui419.github.io/realtime-chat-system/
 ```
 
+Without a public backend URL, the site runs in local demo mode: registration, login, room creation, profile editing, and messages are stored in the current browser for portfolio demonstration.
+
 The site is served from the `gh-pages` branch. To rebuild the static frontend locally:
 
 ```bash

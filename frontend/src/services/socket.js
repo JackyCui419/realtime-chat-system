@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { getMissingBackendMessage, getSocketUrl } from './config';
 
 class SocketService {
   constructor() {
@@ -20,7 +21,12 @@ class SocketService {
       this.socket = null;
     }
 
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
+    const socketUrl = getSocketUrl();
+    if (!socketUrl) {
+      console.error(getMissingBackendMessage());
+      return null;
+    }
+
     console.log('Connecting to:', socketUrl);
     
     this.socket = io(socketUrl, {

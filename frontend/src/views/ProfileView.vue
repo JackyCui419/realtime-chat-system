@@ -69,6 +69,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useChatStore } from '../stores/chat';
 import { getProfile, updateProfile } from '../services/profile';
+import { getApiBaseUrl } from '../services/config';
 
 const router = useRouter();
 const chatStore = useChatStore();
@@ -85,7 +86,7 @@ const loading = ref(false);
 const error = ref('');
 const success = ref('');
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const apiBaseUrl = getApiBaseUrl();
 
 onMounted(async () => {
   if (!userId.value) return;
@@ -97,7 +98,9 @@ onMounted(async () => {
     fullName.value = profile.full_name || '';
     age.value = profile.age != null ? String(profile.age) : '';
     if (profile.avatar_path) {
-      avatarPreview.value = `${API_BASE_URL}${profile.avatar_path}`;
+      avatarPreview.value = apiBaseUrl
+        ? `${apiBaseUrl}${profile.avatar_path}`
+        : profile.avatar_path;
     }
   } catch (err) {
     // 没有资料也没关系，说明是第一次设置
@@ -133,7 +136,9 @@ const saveProfile = async () => {
     fullName.value = profile.full_name || '';
     age.value = profile.age != null ? String(profile.age) : '';
     if (profile.avatar_path) {
-      avatarPreview.value = `${API_BASE_URL}${profile.avatar_path}`;
+      avatarPreview.value = apiBaseUrl
+        ? `${apiBaseUrl}${profile.avatar_path}`
+        : profile.avatar_path;
     }
     success.value = '资料已保存。';
   } catch (err) {

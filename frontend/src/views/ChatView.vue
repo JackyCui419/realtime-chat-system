@@ -92,6 +92,7 @@
           <header class="chat-header">
             <div class="chat-header-left">
               当前用户：<strong>{{ chatStore.username }}</strong>
+              <span v-if="chatStore.isDemoMode" class="demo-badge">Demo Mode</span>
             </div>
             <div class="chat-header-right">
               <button class="header-btn" @click="goProfile">个人资料</button>
@@ -395,6 +396,19 @@ const logout = () => {
 .chat-header-left {
   font-size: 14px;
   color: #4a5568;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #c05621;
+  border: 1px solid #fbd38d;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .chat-header-right {

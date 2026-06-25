@@ -1,5 +1,11 @@
+import { getApiBaseUrl, getMissingBackendMessage } from './config';
+
 export async function uploadChatMedia(file, type = 'image') {
-  const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+  const base = getApiBaseUrl();
+  if (!base) {
+    console.warn(getMissingBackendMessage());
+    return URL.createObjectURL(file);
+  }
 
   const formData = new FormData();
   formData.append('file', file);

@@ -1,7 +1,65 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+import { getApiBaseUrl } from './config';
+
+const DEMO_USERS_KEY = 'chat_demo_users';
+
+function readDemoUsers() {
+  return JSON.parse(localStorage.getItem(DEMO_USERS_KEY) || '[]');
+}
+
+function writeDemoUsers(users) {
+  localStorage.setItem(DEMO_USERS_KEY, JSON.stringify(users));
+}
+
+function demoRegister(username, password) {
+  const cleanUsername = username.trim();
+  const users = readDemoUsers();
+  if (users.some((user) => user.username === cleanUsername)) {
+    throw new Error('Username already exists in demo mode.');
+  }
+
+  const user = {
+    userId: `demo_${Date.now()}`,
+    username: cleanUsername,
+    password
+  };
+  users.push(user);
+  writeDemoUsers(users);
+
+  return {
+    success: true,
+    userId: user.userId,
+    username: user.username,
+    demoMode: true
+  };
+}
+
+function demoLogin(username, password) {
+  const cleanUsername = username.trim();
+  const user = readDemoUsers().find((item) => item.username === cleanUsername);
+  if (!user) {
+    throw new Error('Demo user does not exist. Please register first.');
+  }
+  if (user.password !== password) {
+    throw new Error('Incorrect password.');
+  }
+
+  return {
+    success: true,
+    userId: user.userId,
+    username: user.username,
+    demoMode: true
+  };
+}
 
 async function request(path, body) {
-  const resp = await fetch(`${API_BASE_URL}${path}`, {
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) {
+    return path === '/api/register'
+      ? demoRegister(body.username, body.password)
+      : demoLogin(body.username, body.password);
+  }
+
+  const resp = await fetch(`${apiBaseUrl}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
