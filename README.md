@@ -96,7 +96,7 @@ The site is served from the `gh-pages` branch. To rebuild the static frontend lo
 
 ```bash
 cd frontend
-VITE_BASE_PATH=/realtime-chat-system/ npm run build
+npm run build:pages-demo
 ```
 
 ### Backend Requirement
