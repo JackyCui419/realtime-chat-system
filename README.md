@@ -80,6 +80,57 @@ The system covers:
    npm run dev
    ```
 
+---
+
+## Website Deployment
+
+The frontend is configured for GitHub Pages and can be published as:
+
+```text
+https://jackycui419.github.io/realtime-chat-system/
+```
+
+GitHub Actions workflow:
+
+```text
+.github/workflows/deploy-frontend.yml
+```
+
+To enable the public frontend link:
+
+1. Open the GitHub repository.
+2. Go to `Settings` -> `Pages`.
+3. Set `Build and deployment` source to `GitHub Actions`.
+4. Push to `main`, then wait for the `Deploy frontend to GitHub Pages` action to finish.
+
+### Backend Requirement
+
+The GitHub Pages link only hosts the Vue frontend. Real-time chat also needs the Node.js backend and MySQL database to be available on the public internet.
+
+Deploy the backend with any Node/Docker hosting platform, then set these GitHub repository variables before rebuilding the frontend:
+
+```text
+VITE_API_BASE_URL=https://your-backend-domain.com
+VITE_SOCKET_URL=https://your-backend-domain.com
+```
+
+Repository variables are configured in:
+
+```text
+Settings -> Secrets and variables -> Actions -> Variables
+```
+
+The backend expects these environment variables:
+
+```text
+PORT=3000
+DB_HOST=your-mysql-host
+DB_USER=your-mysql-user
+DB_PASSWORD=your-mysql-password
+DB_NAME=chat_app
+FRONTEND_URL=https://jackycui419.github.io/realtime-chat-system
+```
+
 ## Database Schema
 
 The database schema was designed to support users, chat rooms, and message storage.
